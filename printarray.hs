@@ -6,6 +6,8 @@
 import qualified BasisFunctions.Quadratics as Quads
 import qualified BasisFunctions.QuadraticGradients as Grads
 
+type FunctionList = [([Double] -> [Double])]
+
 main :: IO ()
 main = putStrLn $
         (printArrays 1 Quads.allquadratics Quads.allquadraticsStrings nodes) ++
@@ -28,7 +30,7 @@ main = putStrLn $
 --      a list of Fortran 90 subroutines that return the functions evaluated at
 --      the nodes.
 -------------------------------------------------------------------------------
-printArrays :: Int -> [([Double] -> [Double])] -> [String] -> [[Double]] -> String
+printArrays :: Int -> FunctionList -> [String] -> [[Double]] -> String
 printArrays dim funcList funcNames nodes
     | (dim == 1) = unlines $ zipWith3 printArraySub funcNames (repeat 1) funcVals1D
     | (dim == 2) = unlines $ zipWith3 printArraySub funcNames (repeat 2) f90StyleList2D
