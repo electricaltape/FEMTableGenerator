@@ -6,6 +6,7 @@
 import qualified BasisFunctions.Quadratics as Quads
 import qualified BasisFunctions.QuadraticGradients as Grads
 
+main :: IO ()
 main = putStrLn $
         (printArrays 1 Quads.allquadratics Quads.allquadraticsStrings nodes) ++
         (printArrays 2 Grads.allquadratics Grads.allquadraticsStrings nodes)
@@ -27,6 +28,7 @@ main = putStrLn $
 --      a list of Fortran 90 subroutines that return the functions evaluated at
 --      the nodes.
 -------------------------------------------------------------------------------
+printArrays :: Int -> [([Double] -> [Double])] -> [String] -> [[Double]] -> String
 printArrays dim funcList funcNames nodes
     | (dim == 1) = unlines $ zipWith3 printArraySub funcNames (repeat 1) funcVals1D
     | (dim == 2) = unlines $ zipWith3 printArraySub funcNames (repeat 2) f90StyleList2D
@@ -39,7 +41,9 @@ printArrays dim funcList funcNames nodes
           funcVals2D = zipWith map funcList (repeat nodes)
           f90StyleList2D = [(map head x) ++ (map last x) | x <- funcVals2D]
 
+printArraySub :: String -> Int -> [Double] -> String
 printArraySub name dimension array = unlines $
+-------------------------------------------------------------------------------
 -- Given a basis function name, dimension of the output array (1D, 2D, 3D,
 -- etc), and the 'array' itself (since this is Haskell this is just a list)
 -- return a string.
@@ -47,6 +51,7 @@ printArraySub name dimension array = unlines $
 -- Warning: in Fortran arrays are given in column order. Therefore the passed
 -- in 'array' to be printed must be something like [x,x,x,y,y,y]. Put another
 -- way, this function is stupid and will just print lists of numbers.
+-------------------------------------------------------------------------------
     ["subroutine " ++ name ++ "(" ++ arrayName ++ ")",
      "    implicit none",
      "    double precision :: " ++ arrayName ++ (printDims dim1 dim2),
@@ -65,8 +70,9 @@ printArraySub name dimension array = unlines $
 -- where the arrayName generates the correct number of spaces for it to line
 -- up.
 -------------------------------------------------------------------------------
+printF90array :: [Double] -> String -> String
 printF90array array arrayName = "(/" ++ showFirst ++ showMiddle
-                            ++ showLast ++ "/)"
+                                     ++ showLast ++ "/)"
     where showFirst  = (show $ head array) ++ ", &\n"
           showMiddle = concat $ map (\ array -> ((spaces spaceNum)
                               ++ show array ++ ", &\n")) (tail $ init array)
@@ -78,6 +84,7 @@ printF90array array arrayName = "(/" ++ showFirst ++ showMiddle
 -- printDims 2 3 = (0:2,0:3)
 -- printDims 2 0 = (0:2)
 -------------------------------------------------------------------------------
+printDims :: Int -> Int -> String
 printDims dim1 dim2
     | (dim2 == 0) = "(0:" ++ (show dim1) ++ ")"
     | otherwise = "(0:" ++ (show dim1) ++ ",0:" ++ (show dim2) ++ ")"
@@ -85,4 +92,5 @@ printDims dim1 dim2
 -------------------------------------------------------------------------------
 -- return an integer number of spaces.
 -------------------------------------------------------------------------------
+spaces :: Int -> String
 spaces x = take x $ repeat ' '
