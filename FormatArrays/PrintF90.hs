@@ -6,7 +6,8 @@
 --------------------------------------------------------------------------------
 
 module FormatArrays.PrintF90
-( printOutput
+( printOutput,
+  printArraySub
 ) where
 
 printOutput :: [[[Double]]] -> [String] -> String
@@ -33,14 +34,24 @@ printArraySub name evaluatedPoints = unlines $
     ["subroutine " ++ name ++ "(" ++ arrayName ++ ")",
      "    implicit none",
      "    double precision :: " ++ arrayName ++ (printDims dim1 dim2),
-     "    " ++ arrayName ++ " = " ++ (printF90array array arrayName),
+     "    " ++ arrayName ++ " = " ++ reshapeStart
+     ++ (printF90array array arrayName) ++ reshapeValue ++ reshapeEnd,
      "end subroutine " ++ name]
         where arrayName = "basisvals"
               dimension = getDimension evaluatedPoints
 -- These arrays are indexed from zero, so:
-              dim1      = (length array) `div` dimension - 1
+              dim1      = length evaluatedPoints - 1
               dim2      = dimension - 1
               array     = convertToColumnOrder evaluatedPoints
+-- If we have a 2D array, reshape it. Otherwise catenate empty strings.
+              reshapeStart = if (dim2 == 0) then "" else "reshape("
+              reshapeEnd   = if (dim2 == 0) then "" else ")"
+              reshapeValue = if (dim2 == 0) then ""
+                  else ", (/" ++ showSize1 ++ ", " ++ showSize2 ++ "/)"
+-- Calculate the sizes of the arrays. Note that since we number from
+-- zero this is one higher than the maximum index.
+              showSize1 = show $ dim1 + 1
+              showSize2 = show $ dim2 + 1
 
 convertToColumnOrder :: [[Double]] -> [Double]
 --------------------------------------------------------------------------------
@@ -65,7 +76,7 @@ printF90array :: [Double] -> String -> String
 printF90array evaluatedPoints arrayName = "(/" ++ showFirst ++ showMiddle
                                           ++ showLast ++ "/)"
     where showFirst  = (show $ head evaluatedPoints) ++ ", &\n"
-          showMiddle = concat $ map (\ evaluatedPoints -> ((spaces spaceNum)
+          showMiddle = concatMap (\ evaluatedPoints -> ((spaces spaceNum)
                        ++ show evaluatedPoints ++ ", &\n"))
                        (tail $ init evaluatedPoints)
           showLast   = (spaces 18) ++ (show $ last evaluatedPoints)
