@@ -9,8 +9,8 @@ import qualified FormatArrays.PrintF90     as F90
 -- import qualified PrintHaskell as Hs
 -- import qualified PrintPython  as Py
 -- import qualified PrintC       as C
--- import qualified PrintMatlab  as M
---
+import qualified FormatArrays.PrintM as M
+
 -- datatypes.
 data ArrayStyle   = Haskell | Python | Matlab | C | Fortran90
     deriving (Eq, Ord)
@@ -18,8 +18,8 @@ type FunctionList = [([Double] -> [Double])]
 
 main :: IO ()
 main = putStrLn $
-        (printArrays Fortran90 Quads.allquadratics Quads.allquadraticsStrings nodes) ++
-        (printArrays Fortran90 Grads.allquadratics Grads.allquadraticsStrings nodes)
+        (printArrays Matlab Quads.allquadratics Quads.allquadraticsStrings nodes) ++
+        (printArrays Matlab Grads.allquadratics Grads.allquadraticsStrings nodes)
     where nodes = [[0.659027622374092, 0.231933368553031],
                    [0.659027622374092, 0.109039009072877],
                    [0.231933368553031, 0.659027622374092],
@@ -44,6 +44,6 @@ printArrays language funcList funcNames nodes
 --  | (language == Haskell)   =  Hs.printOutput
 --  | (language == Python)    =  Py.printOutput
 --  | (language == C)         =   C.printOutput
---  | (language == Matlab)    =   M.printOutput
+  | (language == Matlab)    =   M.printOutput evaluatedFunctions funcNames
   | otherwise = F90.printOutput evaluatedFunctions funcNames
     where evaluatedFunctions = [map f nodes | f <- funcList]
