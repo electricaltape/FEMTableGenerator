@@ -47,9 +47,3 @@ printArrays language funcList funcNames nodes
 --  | (language == Matlab)    =   M.printOutput
   | otherwise = F90.printOutput evaluatedFunctions funcNames
     where evaluatedFunctions = [map f nodes | f <- funcList]
-
--------------------------------------------------------------------------------
--- return an integer number of spaces.
--------------------------------------------------------------------------------
-spaces :: Int -> String
-spaces x = take x $ repeat ' '
