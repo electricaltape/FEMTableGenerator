@@ -3,7 +3,6 @@
 -- Author: David Wells <drwells@vt.edu>
 -- Description: Create F90 look-up tables given functions and nodes.
 -------------------------------------------------------------------------------
--- Different elements.
 -- Argyris:
 import qualified BasisFunctions.Argyris               as Argyris
 import qualified BasisFunctions.ArgyrisDerivativesX   as ArgyrisX
@@ -29,16 +28,18 @@ data ArrayStyle   = Haskell | Python | Matlab | C | Fortran90
 type FunctionList = [([Double] -> [Double])]
 
 main :: IO ()
-main = putStrLn $
-   -- (printArrays Matlab Quads.allquadratics Quads.allquadraticsStrings nodes) ++
-   -- (printArrays Matlab Grads.allquadratics Grads.allquadraticsStrings nodes)
-   (printArrays Matlab Argyris.allFunctions Argyris.allFunctionNames nodes28) ++
-   (printArrays Matlab ArgyrisX.allFunctions ArgyrisX.allFunctionNames nodes28) ++
-   (printArrays Matlab ArgyrisXX.allFunctions ArgyrisXX.allFunctionNames nodes28) ++
-   (printArrays Matlab ArgyrisYY.allFunctions ArgyrisYY.allFunctionNames nodes28) ++
-   (printArrays Matlab ArgyrisXY.allFunctions ArgyrisXY.allFunctionNames nodes28) ++
-   (printArrays Matlab ArgyrisGradient.allFunctions ArgyrisGradient.allFunctionNames nodes28) ++
-   (printArrays Matlab ArgyrisLaplacian.allFunctions ArgyrisLaplacian.allFunctionNames nodes28)
+main = putStrLn $ concat $
+   -- biggest zipWith ever.
+   zipWith (\ functions names -> printArrays Matlab functions names nodes28)
+   -- function lists
+   [Argyris.allFunctions, ArgyrisY.allFunctions, ArgyrisX.allFunctions, 
+   ArgyrisXX.allFunctions, ArgyrisXY.allFunctions, ArgyrisYY.allFunctions, 
+   ArgyrisGradient.allFunctions, ArgyrisLaplacian.allFunctions]
+   -- function names
+   [Argyris.allFunctionNames, ArgyrisY.allFunctionNames, 
+   ArgyrisX.allFunctionNames, ArgyrisXX.allFunctionNames, 
+   ArgyrisXY.allFunctionNames, ArgyrisYY.allFunctionNames, 
+   ArgyrisGradient.allFunctionNames, ArgyrisLaplacian.allFunctionNames]
 
 -------------------------------------------------------------------------------
 -- printArrays - a wrapper to various array printers.
@@ -72,6 +73,8 @@ nodes6 = [[0.659027622374092, 0.231933368553031],
           [0.109039009072877, 0.231933368553031]]
 
 nodes28 :: [[Double]]
+-- Set of 28 quadrature points - degree of precision 11. ACM TOMS 612.
+-- Taken from Burkardt.
 nodes28 = [[0.33333333333333333,  0.333333333333333333],
            [0.9480217181434233,   0.02598914092828833],
            [0.02598914092828833,  0.9480217181434233],
