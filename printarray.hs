@@ -29,16 +29,25 @@ data ArrayStyle   = Haskell | Python | Matlab | C | Fortran90
 type FunctionList = [([Double] -> [Double])]
 
 main :: IO ()
-main = putStrLn $
--- (printArrays Matlab Quads.allquadratics Quads.allquadraticsStrings nodes) ++
--- (printArrays Matlab Grads.allquadratics Grads.allquadraticsStrings nodes)
-   (printArrays Matlab Argyris.allFunctions Argyris.allFunctionNames nodes6) ++
-   (printArrays Matlab ArgyrisX.allFunctions ArgyrisX.allFunctionNames nodes6) ++
-   (printArrays Matlab ArgyrisXX.allFunctions ArgyrisXX.allFunctionNames nodes6) ++
-   (printArrays Matlab ArgyrisYY.allFunctions ArgyrisYY.allFunctionNames nodes6) ++
-   (printArrays Matlab ArgyrisXY.allFunctions ArgyrisXY.allFunctionNames nodes6) ++
-   (printArrays Matlab ArgyrisGradient.allFunctions ArgyrisGradient.allFunctionNames nodes6) ++
-   (printArrays Matlab ArgyrisLaplacian.allFunctions ArgyrisLaplacian.allFunctionNames nodes6)
+main = putStrLn $ concat $
+   -- (printArrays Matlab Argyris.allFunctions Argyris.allFunctionNames nodes6) ++
+   -- (printArrays Matlab ArgyrisX.allFunctions ArgyrisX.allFunctionNames nodes6) ++
+   -- (printArrays Matlab ArgyrisXX.allFunctions ArgyrisXX.allFunctionNames nodes6) ++
+   -- (printArrays Matlab ArgyrisYY.allFunctions ArgyrisYY.allFunctionNames nodes6) ++
+   -- (printArrays Matlab ArgyrisXY.allFunctions ArgyrisXY.allFunctionNames nodes6) ++
+   -- (printArrays Matlab ArgyrisGradient.allFunctions ArgyrisGradient.allFunctionNames nodes6) ++
+   -- (printArrays Matlab ArgyrisLaplacian.allFunctions ArgyrisLaplacian.allFunctionNames nodes6)
+   -- biggest zipWith ever.
+   zipWith (\ functions names -> printArrays Matlab functions names nodes28)
+   -- function lists
+   [Argyris.allFunctions, ArgyrisY.allFunctions, ArgyrisX.allFunctions, 
+   ArgyrisXX.allFunctions, ArgyrisXY.allFunctions, ArgyrisYY.allFunctions, 
+   ArgyrisGradient.allFunctions, ArgyrisLaplacian.allFunctions]
+   -- function names
+   [Argyris.allFunctionNames, ArgyrisY.allFunctionNames, 
+   ArgyrisX.allFunctionNames, ArgyrisXX.allFunctionNames, 
+   ArgyrisXY.allFunctionNames, ArgyrisYY.allFunctionNames, 
+   ArgyrisGradient.allFunctionNames, ArgyrisLaplacian.allFunctionNames]
 
 -------------------------------------------------------------------------------
 -- printArrays - a wrapper to various array printers.
@@ -71,5 +80,34 @@ nodes6 = [[0.659027622374092, 0.231933368553031],
           [0.109039009072877, 0.659027622374092],
           [0.109039009072877, 0.231933368553031]]
 
--- nodes8 :: [[Double]]
--- Set of 8 quadrature points.
+nodes28 :: [[Double]]
+-- Set of 28 quadrature points - degree of precision 11. ACM TOMS 612.
+-- Taken from Burkardt.
+nodes28 = [[0.33333333333333333,  0.333333333333333333],
+           [0.9480217181434233,   0.02598914092828833],
+           [0.02598914092828833,  0.9480217181434233],
+           [0.02598914092828833,  0.02598914092828833],
+           [0.8114249947041546,   0.09428750264792270],
+           [0.09428750264792270,  0.8114249947041546],
+           [0.09428750264792270,  0.09428750264792270],
+           [0.01072644996557060,  0.4946367750172147],
+           [0.4946367750172147,   0.01072644996557060],
+           [0.4946367750172147,   0.4946367750172147],
+           [0.5853132347709715,   0.2073433826145142],
+           [0.2073433826145142,   0.5853132347709715],
+           [0.2073433826145142,   0.2073433826145142],
+           [0.1221843885990187,   0.4389078057004907],
+           [0.4389078057004907,   0.1221843885990187],
+           [0.4389078057004907,   0.4389078057004907],
+           [0.6779376548825902,   0.04484167758913055],
+           [0.6779376548825902,   0.27722066752827925],
+           [0.04484167758913055,  0.6779376548825902],
+           [0.04484167758913055,  0.27722066752827925],
+           [0.27722066752827925,  0.6779376548825902],
+           [0.27722066752827925,  0.04484167758913055],
+           [0.8588702812826364,   0.00000000000000000],
+           [0.8588702812826364,   0.1411297187173636],
+           [0.0000000000000000,   0.8588702812826364],
+           [0.0000000000000000,   0.1411297187173636],
+           [0.1411297187173636,   0.8588702812826364],
+           [0.1411297187173636,   0.0000000000000000]]
