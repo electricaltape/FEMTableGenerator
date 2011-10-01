@@ -30,15 +30,15 @@ type FunctionList = [([Double] -> [Double])]
 
 main :: IO ()
 main = putStrLn $
--- (printArrays Matlab Quads.allquadratics Quads.allquadraticsStrings nodes) ++
--- (printArrays Matlab Grads.allquadratics Grads.allquadraticsStrings nodes)
-   (printArrays Matlab Argyris.allFunctions Argyris.allFunctionNames nodes6) ++
-   (printArrays Matlab ArgyrisX.allFunctions ArgyrisX.allFunctionNames nodes6) ++
-   (printArrays Matlab ArgyrisXX.allFunctions ArgyrisXX.allFunctionNames nodes6) ++
-   (printArrays Matlab ArgyrisYY.allFunctions ArgyrisYY.allFunctionNames nodes6) ++
-   (printArrays Matlab ArgyrisXY.allFunctions ArgyrisXY.allFunctionNames nodes6) ++
-   (printArrays Matlab ArgyrisGradient.allFunctions ArgyrisGradient.allFunctionNames nodes6) ++
-   (printArrays Matlab ArgyrisLaplacian.allFunctions ArgyrisLaplacian.allFunctionNames nodes6)
+   -- (printArrays Matlab Quads.allquadratics Quads.allquadraticsStrings nodes) ++
+   -- (printArrays Matlab Grads.allquadratics Grads.allquadraticsStrings nodes)
+   (printArrays Matlab Argyris.allFunctions Argyris.allFunctionNames nodes28) ++
+   (printArrays Matlab ArgyrisX.allFunctions ArgyrisX.allFunctionNames nodes28) ++
+   (printArrays Matlab ArgyrisXX.allFunctions ArgyrisXX.allFunctionNames nodes28) ++
+   (printArrays Matlab ArgyrisYY.allFunctions ArgyrisYY.allFunctionNames nodes28) ++
+   (printArrays Matlab ArgyrisXY.allFunctions ArgyrisXY.allFunctionNames nodes28) ++
+   (printArrays Matlab ArgyrisGradient.allFunctions ArgyrisGradient.allFunctionNames nodes28) ++
+   (printArrays Matlab ArgyrisLaplacian.allFunctions ArgyrisLaplacian.allFunctionNames nodes28)
 
 -------------------------------------------------------------------------------
 -- printArrays - a wrapper to various array printers.
@@ -63,7 +63,7 @@ printArrays language funcList funcNames nodes
 
 nodes6 :: [[Double]]
 -- Set of 6 Gaussian Quadrature points for a basis triangle: should interpolate
--- order 2 polynomials correctly.
+-- order 4 polynomials correctly.
 nodes6 = [[0.659027622374092, 0.231933368553031],
           [0.659027622374092, 0.109039009072877],
           [0.231933368553031, 0.659027622374092],
@@ -71,5 +71,32 @@ nodes6 = [[0.659027622374092, 0.231933368553031],
           [0.109039009072877, 0.659027622374092],
           [0.109039009072877, 0.231933368553031]]
 
--- nodes8 :: [[Double]]
--- Set of 8 quadrature points.
+nodes28 :: [[Double]]
+nodes28 = [[0.33333333333333333,  0.333333333333333333],
+           [0.9480217181434233,   0.02598914092828833],
+           [0.02598914092828833,  0.9480217181434233],
+           [0.02598914092828833,  0.02598914092828833],
+           [0.8114249947041546,   0.09428750264792270],
+           [0.09428750264792270,  0.8114249947041546],
+           [0.09428750264792270,  0.09428750264792270],
+           [0.01072644996557060,  0.4946367750172147],
+           [0.4946367750172147,   0.01072644996557060],
+           [0.4946367750172147,   0.4946367750172147],
+           [0.5853132347709715,   0.2073433826145142],
+           [0.2073433826145142,   0.5853132347709715],
+           [0.2073433826145142,   0.2073433826145142],
+           [0.1221843885990187,   0.4389078057004907],
+           [0.4389078057004907,   0.1221843885990187],
+           [0.4389078057004907,   0.4389078057004907],
+           [0.6779376548825902,   0.04484167758913055],
+           [0.6779376548825902,   0.27722066752827925],
+           [0.04484167758913055,  0.6779376548825902],
+           [0.04484167758913055,  0.27722066752827925],
+           [0.27722066752827925,  0.6779376548825902],
+           [0.27722066752827925,  0.04484167758913055],
+           [0.8588702812826364,   0.00000000000000000],
+           [0.8588702812826364,   0.1411297187173636],
+           [0.0000000000000000,   0.8588702812826364],
+           [0.0000000000000000,   0.1411297187173636],
+           [0.1411297187173636,   0.8588702812826364],
+           [0.1411297187173636,   0.0000000000000000]]

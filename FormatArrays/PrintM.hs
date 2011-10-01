@@ -5,10 +5,7 @@
 -------------------------------------------------------------------------------
 
 module FormatArrays.PrintM
-( printOutput,
-  printMArray,
-  printArrayFunc
-) where
+(printOutput) where
 
 import Data.List
 
@@ -17,18 +14,7 @@ printOutput :: [[[Double]]] -> [String] -> String
 -- given a look-up list return a single MATLAB array representation.
 --------------------------------------------------------------------------------
 printOutput evaluatedFunctions funcNames =
-  concat $ zipWith printArrayFunc funcNames evaluatedFunctions
-
-printArrayFunc :: String -> [[Double]] -> String
---------------------------------------------------------------------------------
--- Given an array name and array, print out a function that will
--- return said array.
---------------------------------------------------------------------------------
-printArrayFunc name evaluatedPoints = unlines $
-    ["function [" ++ arrayName ++ "] = " ++ name ++ "()",
-    "    " ++ arrayName ++ " = " ++ (printMArray evaluatedPoints arrayName)
-           ++ ";\n"]
-    where arrayName = "basisPoints"
+  concat $ zipWith printLoneArray evaluatedFunctions funcNames
 
 printMArray :: [[Double]] -> String -> String
 --------------------------------------------------------------------------------
@@ -43,10 +29,17 @@ printMArray evaluatedPoints arrayName =
         showMiddle = if ((not . null) $ (init $ tail evaluatedPoints)) then
                         concat [spaces spaceNum ++ intercalate ", " row ++ ";\n"
                                | row <- init $ tail stringForm]
-                     else "skipped middle."
+                     else ""
         showLastRow   = spaces spaceNum ++ (intercalate ", " (last stringForm))
         -- amount to indent data in second to last row. Cosmetic only.
-        spaceNum   = length arrayName + 4 + 4
+        spaceNum   = length arrayName + 4
+
+printLoneArray :: [[Double]] -> String -> String
+--------------------------------------------------------------------------------
+-- print out an array with a name and semicolon.
+--------------------------------------------------------------------------------
+printLoneArray evaluatedPoints arrayName =
+    arrayName ++ " = " ++ (printMArray evaluatedPoints arrayName) ++ ";\n\n"
 
 spaces :: Int -> String
 --------------------------------------------------------------------------------
