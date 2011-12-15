@@ -3,7 +3,6 @@
 -- Author: David Wells <drwells@vt.edu>
 -- Description: Create F90 look-up tables given functions and nodes.
 -------------------------------------------------------------------------------
--- Different elements.
 -- Argyris:
 import qualified BasisFunctions.Argyris               as Argyris
 import qualified BasisFunctions.ArgyrisDerivativesX   as ArgyrisX
@@ -30,13 +29,6 @@ type FunctionList = [([Double] -> [Double])]
 
 main :: IO ()
 main = putStrLn $ concat $
-   -- (printArrays Matlab Argyris.allFunctions Argyris.allFunctionNames nodes6) ++
-   -- (printArrays Matlab ArgyrisX.allFunctions ArgyrisX.allFunctionNames nodes6) ++
-   -- (printArrays Matlab ArgyrisXX.allFunctions ArgyrisXX.allFunctionNames nodes6) ++
-   -- (printArrays Matlab ArgyrisYY.allFunctions ArgyrisYY.allFunctionNames nodes6) ++
-   -- (printArrays Matlab ArgyrisXY.allFunctions ArgyrisXY.allFunctionNames nodes6) ++
-   -- (printArrays Matlab ArgyrisGradient.allFunctions ArgyrisGradient.allFunctionNames nodes6) ++
-   -- (printArrays Matlab ArgyrisLaplacian.allFunctions ArgyrisLaplacian.allFunctionNames nodes6)
    -- biggest zipWith ever.
    zipWith (\ functions names -> printArrays Matlab functions names nodes28)
    -- function lists
@@ -72,7 +64,7 @@ printArrays language funcList funcNames nodes
 
 nodes6 :: [[Double]]
 -- Set of 6 Gaussian Quadrature points for a basis triangle: should interpolate
--- order 2 polynomials correctly.
+-- order 4 polynomials correctly.
 nodes6 = [[0.659027622374092, 0.231933368553031],
           [0.659027622374092, 0.109039009072877],
           [0.231933368553031, 0.659027622374092],
