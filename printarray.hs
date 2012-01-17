@@ -3,43 +3,22 @@
 -- Author: David Wells <drwells@vt.edu>
 -- Description: Create F90 look-up tables given functions and nodes.
 -------------------------------------------------------------------------------
--- Argyris:
-import qualified BasisFunctions.Argyris               as Argyris
-import qualified BasisFunctions.ArgyrisDerivativesX   as ArgyrisX
-import qualified BasisFunctions.ArgyrisDerivativesXX  as ArgyrisXX
-import qualified BasisFunctions.ArgyrisDerivativesY   as ArgyrisY
-import qualified BasisFunctions.ArgyrisDerivativesYY  as ArgyrisYY
-import qualified BasisFunctions.ArgyrisDerivativesXY  as ArgyrisXY
-import qualified BasisFunctions.ArgyrisLaplacian      as ArgyrisLaplacian
-import qualified BasisFunctions.ArgyrisGradient       as ArgyrisGradient
--- Quadratics:
-import qualified BasisFunctions.Quadratics         as Quads
-import qualified BasisFunctions.QuadraticGradients as Grads
--- Different Languages.
 import qualified FormatArrays.PrintF90 as F90
 import qualified FormatArrays.PrintM   as M
+import qualified Polynomial.Polynomials as P
 -- import qualified PrintHaskell as Hs
 -- import qualified PrintPython  as Py
 -- import qualified PrintC       as C
 
--- datatypes.
 data ArrayStyle   = Haskell | Python | Matlab | C | Fortran90
     deriving (Eq, Ord)
 type FunctionList = [([Double] -> [Double])]
 
+-- take polynomial description from the standard input and turn it in to lookup
+-- tables.
 main :: IO ()
-main = putStrLn $ concat $
-   -- biggest zipWith ever.
-   zipWith (\ functions names -> printArrays Matlab functions names nodes28)
-   -- function lists
-   [Argyris.allFunctions, ArgyrisY.allFunctions, ArgyrisX.allFunctions, 
-   ArgyrisXX.allFunctions, ArgyrisXY.allFunctions, ArgyrisYY.allFunctions, 
-   ArgyrisGradient.allFunctions, ArgyrisLaplacian.allFunctions]
-   -- function names
-   [Argyris.allFunctionNames, ArgyrisY.allFunctionNames, 
-   ArgyrisX.allFunctionNames, ArgyrisXX.allFunctionNames, 
-   ArgyrisXY.allFunctionNames, ArgyrisYY.allFunctionNames, 
-   ArgyrisGradient.allFunctionNames, ArgyrisLaplacian.allFunctionNames]
+main = getContents >>= (\ polynomials -> putStrLn $
+         printArrays Matlab (P.exportGradientsAndPolynomials polynomials) nodes6)
 
 -------------------------------------------------------------------------------
 -- printArrays - a wrapper to various array printers.
@@ -52,8 +31,8 @@ main = putStrLn $ concat $
 --     a list of language-specific routines that return the functions
 --     evaluated at the nodes
 -------------------------------------------------------------------------------
-printArrays :: ArrayStyle -> FunctionList -> [String] -> [[Double]] -> String
-printArrays language funcList funcNames nodes
+printArrays :: ArrayStyle -> ([String], FunctionList) -> [[Double]] -> String
+printArrays language (funcNames, funcList) nodes
   | (language == Fortran90) = F90.printOutput evaluatedFunctions funcNames
 --  | (language == Haskell)   =  Hs.printOutput
 --  | (language == Python)    =  Py.printOutput
