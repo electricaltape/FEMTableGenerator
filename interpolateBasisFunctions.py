@@ -2,20 +2,36 @@
 from sage.all_cmdline import *   # import sage library
 _sage_const_3 = Integer(3); _sage_const_2 = Integer(2); _sage_const_1 = Integer(1); _sage_const_10 = Integer(10); _sage_const_0 = Integer(0)
 import optparse
+import quadrature
 
 def main():
 
     parser = optparse.OptionParser()
     parser.add_option("-o", "--order",
-    help="""Order of Lagrangian interpolant""", metavar="ORDER")
+        help="""Order of Lagrangian interpolant""", metavar="ORDER")
+    parser.add_option("-d", "--derivative",
+        help="""set to 1 to calculate gradients, 0 for basis functions""",
+        metavar="DERIVATIVE")
 
     (options, args) = parser.parse_args()
-    order = int(options.order)
+    order_flag      = int(options.order)
+    derivative_flag = int(options.derivative)
 
-    if order in (ellipsis_range(_sage_const_1 ,Ellipsis,_sage_const_10 )):
-        print format_basis_polynomials(int(options.order))
-    else:
+    # verify command line arguements.
+    if order_flag not in (ellipsis_range(_sage_const_1 ,Ellipsis,_sage_const_10 )):
         raise AttributeError("GMSH only supports orders 1 through 10.")
+    if derivative_flag not in (ellipsis_range(_sage_const_0 ,Ellipsis,_sage_const_1 )):
+        raise AttributeError("""This program can only return either the basis
+            functions or their gradients.""")
+
+    # run the program.
+    points = quadrature.points[order_flag]
+    polynomial_list = interpolate_basis_polynomials(order_flag)
+    if derivative_flag == _sage_const_1 : # use gradients
+        print [map(f, points)
+               for f in map(gradient_to_function, map(gradient, polynomial_list))]
+    else: # use basis functions
+        print [map(f, points) for f in map(polynomial_to_function, polynomial_list)]
 
 def sum_until(n):
     """Sum the integers up to n."""
@@ -112,25 +128,48 @@ def build_node_list(order):
     # call the recurring function with the proper first three corners.
     return construct_nodes((_sage_const_0 ,_sage_const_0 ),(_sage_const_1 ,_sage_const_0 ),(_sage_const_0 ,_sage_const_1 ),order)
 
+def tripple_form_to_symbolic(tripplet_list):
+    """convert a list of tripplets into a symbolic polynomial using xs and
+    ys."""
+
+    var('x,y')
+    return sum(map(lambda tripplet :
+               tripplet[_sage_const_0 ] * x**tripplet[_sage_const_1 ] * y**tripplet[_sage_const_2 ], tripplet_list))
+
 def interpolate_basis_polynomials(order):
-    """Given some order, interpolate the basis polynomials. Number the interior
-    nodes used as GMSH does (recursively)."""
+    """Given some order, interpolate the basis polynomials and return them as
+    symbolic statements. The arguement to the function is something with two
+    indexes. Number the interior nodes used as GMSH does (recursively)."""
 
     A_inverse = build_coefficient_matrix(order).inverse()
-    return [A_inverse * RHS for RHS in build_all_RHS(order)]
 
-def format_basis_polynomials(order):
-    """Given some order, interpolate the basis polynomials and return their
-    representation as a string that the FEMBasis program can understand."""
-
-    coefficients = interpolate_basis_polynomials(order)
+    coefficients = [A_inverse * RHS for RHS in build_all_RHS(order)]
     powers       = [(n-m,m,_sage_const_0 ) for n in (ellipsis_range(_sage_const_0 ,Ellipsis,order)) for m in (ellipsis_range(_sage_const_0 ,Ellipsis,n))]
 
     flatten_inner_tupples = (lambda x :
         map(lambda y : (float(y[_sage_const_0 ][_sage_const_0 ]), y[_sage_const_1 ][_sage_const_0 ], y[_sage_const_1 ][_sage_const_1 ], y[_sage_const_1 ][_sage_const_2 ]), x))
-    # Build a list of polynomials in the export format.
-    return (map(flatten_inner_tupples,
-       [zip(x, powers) for x in interpolate_basis_polynomials(order)]))
+
+    # convert to tripples, then convert to functions.
+    tripple_form = (map(flatten_inner_tupples,
+       [zip(x, powers) for x in coefficients]))
+
+    return map(tripple_form_to_symbolic, tripple_form)
+
+def gradient(f):
+    """Calculate the gradient of some symbolic expression. Return it as a pair."""
+    var('x,y')
+    return [f.diff(x), f.diff(y)]
+
+def gradient_to_function(f):
+    """Convert some gradient into a function mapping a pair of doubles to a
+    pair of doubles."""
+    return (lambda coords : [f[_sage_const_0 ].subs({x : coords[_sage_const_0 ], y : coords[_sage_const_1 ]}),
+                            f[_sage_const_1 ].subs({x : coords[_sage_const_0 ], y : coords[_sage_const_1 ]})])
+
+def polynomial_to_function(f):
+    """Convert some symbolic polynomial into a function mapping a pair of
+    doubles to a pair of doubles."""
+    return (lambda coords : f.subs({x : coords[_sage_const_0 ], y : coords[_sage_const_1 ]}))
 
 if __name__ == '__main__':
     main()

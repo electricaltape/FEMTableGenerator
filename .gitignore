@@ -1,5 +1,1 @@
-printarray
-*.o
-*.hi
-*.hs~
-
+*.pyc

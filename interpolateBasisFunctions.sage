@@ -1,19 +1,21 @@
-import optparse
+def interpolate_basis_polynomials(order):
+    """Given some order, interpolate the basis polynomials and return them as
+    symbolic statements. The arguement to the function is something with two
+    indexes. Number the interior nodes used as GMSH does (recursively)."""
 
-def main():
+    A_inverse = build_coefficient_matrix(order).inverse()
 
-    parser = optparse.OptionParser()
-    parser.add_option("-o", "--order",
-    help="""Order of Lagrangian interpolant""", metavar="ORDER")
+    coefficients = [A_inverse * RHS for RHS in build_all_RHS(order)]
+    powers       = [(n-m,m,0) for n in [0..order] for m in [0..n]]
 
-    (options, args) = parser.parse_args()
-    order = int(options.order)
+    flatten_inner_tupples = (lambda x :
+        map(lambda y : (float(y[0][0]), y[1][0], y[1][1], y[1][2]), x))
 
-    if order in [1..10]:
-        print format_basis_polynomials(int(options.order))
-    else:
-        raise AttributeError("GMSH only supports orders 1 through 10.")
+    # convert to tripples, then convert to functions.
+    tripple_form = (map(flatten_inner_tupples,
+       [zip(x, powers) for x in coefficients]))
 
+    return map(tripple_form_to_symbolic, tripple_form)
 def sum_until(n):
     """Sum the integers up to n."""
     return (n + 1)*n/2
@@ -109,25 +111,10 @@ def build_node_list(order):
     # call the recurring function with the proper first three corners.
     return construct_nodes((0,0),(1,0),(0,1),order)
 
-def interpolate_basis_polynomials(order):
-    """Given some order, interpolate the basis polynomials. Number the interior
-    nodes used as GMSH does (recursively)."""
+def tripple_form_to_symbolic(tripplet_list):
+    """convert a list of tripplets into a symbolic polynomial using xs and
+    ys."""
 
-    A_inverse = build_coefficient_matrix(order).inverse()
-    return [A_inverse * RHS for RHS in build_all_RHS(order)]
-
-def format_basis_polynomials(order):
-    """Given some order, interpolate the basis polynomials and return their
-    representation as a string that the FEMBasis program can understand."""
-
-    coefficients = interpolate_basis_polynomials(order)
-    powers       = [(n-m,m,0) for n in [0..order] for m in [0..n]]
-
-    flatten_inner_tupples = (lambda x :
-        map(lambda y : (float(y[0][0]), y[1][0], y[1][1], y[1][2]), x))
-    # Build a list of polynomials in the export format.
-    return (map(flatten_inner_tupples,
-       [zip(x, powers) for x in interpolate_basis_polynomials(order)]))
-
-if __name__ == '__main__':
-    main()
+    var('x,y')
+    return sum(map(lambda tripplet :
+               tripplet[0] * x^tripplet[1] * y^tripplet[2], tripplet_list))
